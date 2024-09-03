@@ -6,10 +6,10 @@
 
 - **Frontend Frameworks**: Vanilla, React, Svelte, Vue, Preact, Lit
 - **CSS Frameworks**: Vanilla, Sass, Less, TailwindCSS
-- **Linters**: ESLint, Prettier, Stylelint, No Linter
-- **Backends**: ExpressJS, KoaJS, No backend
-- **View Engines**: EJS, Pug (Jade), Dust, Handlebars, HoganJS, Twig, Vash, No view engine
-- **Databases**: Postgres, SQLite, MySQL, MongoDB (Mongoose), OracleDB, No Database
+- **Linters**: ESLint, Prettier, Stylelint
+- **Backends**: ExpressJS, KoaJS
+- **View Engines**: EJS, Pug (Jade), Dust, Handlebars, HoganJS, Twig, Vash
+- **Databases**: Postgres, SQLite, MySQL, MongoDB (Mongoose), OracleDB
 
 ## Installation
 
