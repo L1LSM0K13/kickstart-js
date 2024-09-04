@@ -39,6 +39,4 @@
     View engine (if applicable)
     Database (if applicable)
 
-If you choose Vite, a new folder with the project name will be created inside your current directory. If you do not choose Vite, everything will be set up in the current directory.
-
-Once the project is set up you can remove the dependencies and the build.js file.
+Once the project is set up you can move your new project directory that you created anywhere in your system, you can then keep building more projects with the kickstart-js script or for a one time remove it after use. 
