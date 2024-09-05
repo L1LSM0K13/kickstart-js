@@ -95,6 +95,10 @@ async function main() {
       },
     ]);
 
+  const tailwindConfigData = '/** @type {import(\'tailwindcss\').Config} */\n' + 'module.exports = {\n' + '  content: ["./src/**/*.{html,js}"],\n' + '  theme: {\n' + '    extend: {},\n' + '  },\n' + '  plugins: [],\n' + '}'
+  const tailwindInputContent = '@tailwind base;\n@tailwind components;\n@tailwind utilities;'
+  const tailwindNpxCommand = 'npx tailwindcss -i ./src/input.css -o ./src/output.css --watch'
+
   async function build(options) {
     const projectName = options["project-name"];
     const dirPath = path.resolve(process.cwd(), projectName)
@@ -114,40 +118,10 @@ async function main() {
               await execPromise('npm install -D tailwindcss');
               await execPromise('npx tailwindcss init')
 
-              fs.writeFileSync('tailwind.config.js', '/** @type {import(\'tailwindcss\').Config} */\n' +
-                  'module.exports = {\n' +
-                  '  content: ["./src/**/*.{html,js}"],\n' +
-                  '  theme: {\n' +
-                  '    extend: {},\n' +
-                  '  },\n' +
-                  '  plugins: [],\n' +
-                  '}')
-
-              fs.mkdirSync('src', {recursive: true}, async (err) => {
-                if (err) {
-                  console.error("Error creating directory", err)
-                } else {
-                  process.chdir(`${projectName}/src`)
-
-                  fs.openSync('input.css', 'w', (fd) => {
-                    const content = '@tailwind base;\n@tailwind components;\n@tailwind utilities;'
-
-                    fs.writeSync(fd, content, (err) => {
-                      if (err) throw err;
-                      console.log('Content written to file!');
-
-                      fs.closeSync(fd, (err) => {
-                        if (err) throw err;
-                        console.log('File closed!');
-                      });
-                    });
-                  });
-
-                  await execPromise('npx tailwindcss -i .src/input.css -o ./src/output.css --watch')
-                }
-              })
-
-
+              fs.writeFileSync('tailwind.config.js', tailwindConfigData)
+              fs.mkdirSync('src', {recursive: true})
+              fs.writeFileSync('src/input.css', tailwindInputContent)
+                console.log(chalk.green('Build with tailwind complete, run this command with your own file directory, or run as is\n'),chalk.yellow(tailwindNpxCommand))
               break;
             case "Sass":
               await execPromise("npm install sass");
