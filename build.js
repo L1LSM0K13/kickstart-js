@@ -95,15 +95,45 @@ async function main() {
       },
     ]);
 
-  const tailwindConfigData = '/** @type {import(\'tailwindcss\').Config} */\n' + 'module.exports = {\n' + '  content: ["./src/**/*.{html,js}"],\n' + '  theme: {\n' + '    extend: {},\n' + '  },\n' + '  plugins: [],\n' + '}'
+  const tailwindConfigData = '/** @type {import(\'tailwindcss\').Config} */\n' + 'module.exports = {\n' + '  content: ["./public/css/**/*.{html,js}"],\n' + '  theme: {\n' + '    extend: {},\n' + '  },\n' + '  plugins: [],\n' + '}'
   const tailwindInputContent = '@tailwind base;\n@tailwind components;\n@tailwind utilities;'
-  const tailwindNpxCommand = 'npx tailwindcss -i ./src/input.css -o ./src/output.css --watch'
+  const tailwindNpxCommand = 'npx tailwindcss -i ./public/css/input.css -o ./public/css/output.css --watch'
 
   async function build(options) {
     const projectName = options["project-name"];
     const dirPath = path.resolve(process.cwd(), projectName)
 
     async function initNoVite() {
+      async function mkPublic() {
+
+        const directories = [
+          'public/css',
+          'public/views',
+          'public/images',
+          'public/javascript'
+        ];
+
+        for (const dir of directories) {
+          const fullPath = path.resolve(dir)
+          fs.mkdirSync(fullPath, {recursive: true})
+        }
+      }
+      async function mkSrc() {
+
+        const directories = [
+          'src/controllers',
+          'src/routes',
+          'src/models',
+          'config',
+        ];
+
+        for (const dir of directories) {
+          const fullPath = path.resolve(dir)
+          fs.mkdirSync(fullPath, {recursive: true})
+        }
+        fs.writeFileSync('config/.env', '')
+      }
+
       // Handle non-Vite project setup
       fs.mkdir(dirPath, {recursive: true}, async (err) => {
         if (err) {
@@ -111,17 +141,18 @@ async function main() {
         } else {
           process.chdir(projectName)
           await execPromise('npm init -y')
-
+          fs.writeFileSync('app.js', '')
+          await mkPublic()
           // Handle CSS framework
           switch (options.cssFramework) {
             case "TailwindCSS":
               await execPromise('npm install -D tailwindcss');
               await execPromise('npx tailwindcss init')
 
-              fs.writeFileSync('tailwind.config.js', tailwindConfigData)
-              fs.mkdirSync('src', {recursive: true})
-              fs.writeFileSync('src/input.css', tailwindInputContent)
-                console.log(chalk.green('Build with tailwind complete, run this command with your own file directory, or run as is\n'),chalk.yellow(tailwindNpxCommand))
+                fs.writeFileSync('tailwind.config.js', tailwindConfigData)
+                fs.writeFileSync('public/css/input.css', tailwindInputContent)
+
+              console.log(`TAILWINDCSS when done: run ${tailwindNpxCommand}`)
               break;
             case "Sass":
               await execPromise("npm install sass");
@@ -136,13 +167,19 @@ async function main() {
           // Handle linter
           switch (options.linter) {
             case "ESLint":
-              await execPromise("npm install eslint");
+              await execPromise("yes 2 | npm init @eslint/config@latest");
+
+              console.log(`ESLINT when done: run <npx eslint yourfile.js>`)
               break;
             case "Prettier":
-              await execPromise("npm install prettier");
+              await execPromise("npm install --save-dev --save-exact prettier");
+              await execPromise(`node --eval "fs.writeFileSync('.prettierrc','{}')"`)
+              await execPromise(`node --eval "fs.writeFileSync('.prettierignore','# Ignore artifacts:build coverage')"`)
+
+              console.log(`PRETTIER when done: run <npx prettier --check> to format your files`)
               break;
             case "Stylelint":
-              await execPromise("npm install stylelint");
+              await execPromise("npm install stylelint stylelint-scss");
               break;
             case "No Linter":
               break;
@@ -151,10 +188,12 @@ async function main() {
           // Handle backend
           switch (options.backend) {
             case "ExpressJS":
-              await execPromise("npm install express");
+              await execPromise("npm install nodemon express express-session express-flash body-parser dotenv");
+              await mkSrc()
               break;
             case "KoaJS":
-              await execPromise("npm install koa");
+              await execPromise("npm install koa @koa/router koa-bodyparser dotenv koa-logger koa-static koa-helmet koa-onerror");
+              await mkSrc()
               break;
             case "No backend":
               break;
